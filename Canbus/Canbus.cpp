@@ -142,30 +142,31 @@ char CanbusClass::ecu_req(unsigned char pid,  char *buffer)
 									case ENGINE_COOLANT_TEMP: 	// 	A-40			  [degree C]
 									engine_data =  message.data[3] - 40;
 									sprintf(buffer,"%d degC",(int) engine_data);
-							
 									break;
 							
 									case VEHICLE_SPEED: 		// A				  [km]
 									engine_data =  message.data[3];
 									sprintf(buffer,"%d km ",(int) engine_data);
-							
 									break;
 
 									case MAF_SENSOR:   			// ((256*A)+B) / 100  [g/s]
 									engine_data =  ((message.data[3]*256) + message.data[4])/100;
 									sprintf(buffer,"%d g/s",(int) engine_data);
-							
 									break;
 
 									case O2_VOLTAGE:    		// A * 0.005   (B-128) * 100/128 (if B==0xFF, sensor is not used in trim calc)
 									engine_data = message.data[3]*0.005;
 									sprintf(buffer,"%d v",(int) engine_data);
+									break;
 							
 									case THROTTLE:				// Throttle Position
 									engine_data = (message.data[3]*100)/255;
 									sprintf(buffer,"%d %% ",(int) engine_data);
 									break;
-							
+									
+									default:
+									sprintf(buffer,"%d, %d, %d, %d, %d, %d, %d, %d", message.data[0], message.data[1], message.data[2], message.data[3], message.data[4], message.data[5], message.data[6], message.data[7]);
+									break;
 								}
 								message_ok = 1;
 							}
