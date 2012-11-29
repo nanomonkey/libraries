@@ -119,8 +119,7 @@ uint8_t mcp2515_read_status(uint8_t type)
 // -------------------------------------------------------------------------
 uint8_t mcp2515_init(uint8_t speed)
 {
-		
-	
+	RESET(LED2_HIGH);
 	SET(MCP2515_CS);
 	SET_OUTPUT(MCP2515_CS);
 	
@@ -145,13 +144,21 @@ uint8_t mcp2515_init(uint8_t speed)
 	spi_putc(SPI_RESET);
 	SET(MCP2515_CS);
 	
+	
 	// wait a little bit until the MCP2515 has restarted
 	_delay_us(10);
+	
+    RESET(MCP2515_CS);
+	spi_putc(SPI_RESET);
+	SET(MCP2515_CS);
+	SET(LED2_HIGH);
 	
 	// load CNF1..3 Register
 	RESET(MCP2515_CS);
 	spi_putc(SPI_WRITE);
 	spi_putc(CNF3);
+	//SET(LED2_HIGH);
+	
 	
 /*	spi_putc((1<<PHSEG21));		// Bitrate 125 kbps at 16 MHz
 	spi_putc((1<<BTLMODE)|(1<<PHSEG11));
@@ -173,8 +180,7 @@ uint8_t mcp2515_init(uint8_t speed)
 	
 	// test if we could read back the value => is the chip accessible?
 	if (mcp2515_read_register(CNF1) != speed) {
-		SET(LED2_HIGH);
-
+		//SET(LED2_HIGH);
 		return false;
 	}
 	
