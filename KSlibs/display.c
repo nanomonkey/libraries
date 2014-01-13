@@ -5,9 +5,14 @@
 #include <wiring.h>
 #define DelayMS(n) delay(n)
 
+/*
+Real important stuff:
+	Pins 0..2 of PORTG are Strobe, R/W, and Reg Select
+	Pins 0..3 of PORTA are D0..D3
+*/
 
 #define DISP_IN      {PORTA |= 0x0f; DDRA &= ~0x0f;}
-#define DISP_OUT     {DDRA |= 0x0f; }
+#define DISP_OUT     {DDRA |= 0x0f;}
 #define DISP_EN_HIGH {PORTG |= 0x01;}
 #define DISP_EN_LOW  {PORTG &= ~0x01;}
 #define DISP_READ    {PORTG |= 0x02;}
@@ -31,18 +36,18 @@ void Disp_Init() {
 unsigned char Disp_ReadSR() {
 	unsigned char highnib, lownib;
 
-	DISP_IN;
-	PORTG &= ~7;
-	DISP_IR;
-	DISP_READ;
+	DISP_IN;							// {PORTA |= 0x0f; DDRA &= ~0x0f;}	Make PORTA input, turn on pull-up resistors
+	PORTG &= ~7;						//									Turn off RW and RS
+	DISP_IR;							// {PORTG &= ~0x04;}				Turn off RS?
+	DISP_READ;							// {PORTG |= 0x02;}					Turn on RW
 
-	DISP_EN_HIGH; // read IR en
-	highnib = DISP_DATA_IN;
-	DISP_EN_LOW;
+	DISP_EN_HIGH; // read IR en			// {PORTG &= ~0x01;}				Strobe on
+	highnib = DISP_DATA_IN;				// (PINA & 0x0f)					Read nibble
+	DISP_EN_LOW;						// {PORTG &= ~0x01;}				Strobe off
 
-	DISP_EN_HIGH;
-	lownib = DISP_DATA_IN;
-	DISP_EN_LOW;
+	DISP_EN_HIGH;						// {PORTG &= ~0x01;}				Strobe on
+	lownib = DISP_DATA_IN;				// (PINA & 0x0f)					Read nibble
+	DISP_EN_LOW;						// {PORTG &= ~0x01;}				Strobe off
 
 	return (highnib << 4) + lownib;
 }
@@ -152,9 +157,9 @@ void Disp_Reset() {
 
 
 void Disp_Wait() {
-//	while (Disp_ReadSR() & 0x01) ;
-//delay(1);
-delayMicroseconds(75);
+//	while (Disp_ReadSR() & 0x40);
+//	delay(1);
+	delayMicroseconds(75);
 }
 
 
@@ -208,4 +213,10 @@ void Disp_CursOn() {
 void Disp_CursOff() {
 	Disp_WriteIR(0x0c);  // display on, cursor off
 	Disp_Wait();
+}
+
+void Disp_Clear() {
+	Disp_WriteIR(0x01);    // display clear
+	//Disp_Wait();
+	DelayMS(2);
 }
