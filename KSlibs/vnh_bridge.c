@@ -99,25 +99,13 @@ void vnh_tick(vnh_s* v){
 	static unsigned int adcpre = 0;
 	vnh_pwm_tick(v);
 	// ADC sampling is pre-scaled
-	if (++adcpre > 10){
-		vnh_adc_tick(v);
-		adcpre=0;
-	}
+	// if (++adcpre > 10){
+		// vnh_adc_tick(v);
+		// adcpre=0;
+	// }
 	// Fault checks
 	v->status.fault_A = !gpio_get_pin(&v->ena);
 	v->status.fault_B = !gpio_get_pin(&v->enb);
-	// Current limiting
-	if (v->climit) {
-		// If we're over the limit current go into limit mode
-		if (v->avg.avg > v->climit) {
-			v->status.limit = 1;
-		}
-		// If we're in limit mode but no longer above the limit current
-		// (minus our hysteresis value), go back to normal mode
-		if (v->status.limit && (v->avg.avg < (v->climit - v->chyst))) {
-			v->status.limit = 0;
-		}
-	}
 }
 
 void vnh_pwm_tick(vnh_s* v){
@@ -183,6 +171,17 @@ void vnh_adc_tick(vnh_s* v){
 		v->avg.head = 0;
 	}
 	v->avg.avg = (v->avg.accum >> VNH_DIVISOR);		// Divide the accumulator
+	if (v->climit) {
+		// If we're over the limit current go into limit mode
+		if (v->avg.avg > v->climit) {
+			v->status.limit = 1;
+		}
+		// If we're in limit mode but no longer above the limit current
+		// (minus our hysteresis value), go back to normal mode
+		if (v->status.limit && (v->avg.avg < (v->climit - v->chyst))) {
+			v->status.limit = 0;
+		}
+	}
 }
 
 unsigned int vnh_get_current(vnh_s* v){

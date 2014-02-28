@@ -67,6 +67,8 @@ void vnh_brake(vnh_s*);		// A=lo, B=lo
 void vnh_standby(vnh_s*);	// Disable A, B
 
 void vnh_tick(vnh_s*);
+void vnh_adc_tick(vnh_s* v);
+void vnh_pwm_tick(vnh_s* v);
 
 unsigned int vnh_get_current(vnh_s*); // Returns average current
 vnh_status_s vnh_get_status(vnh_s*);
