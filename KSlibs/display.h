@@ -15,6 +15,7 @@ void Disp_PutChar(char);
 void Disp_PutStr(char*);
 void Disp_CursOn();
 void Disp_CursOff();
+void Disp_Clear();
 
 
 
